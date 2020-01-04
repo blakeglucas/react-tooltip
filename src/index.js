@@ -58,14 +58,18 @@ class ReactTooltip extends React.Component {
     scrollHide: PropTypes.bool,
     resizeHide: PropTypes.bool,
     wrapper: PropTypes.string,
-    clickable: PropTypes.bool
+    clickable: PropTypes.bool,
+    persistent: PropTypes.bool,
+    ignoreMouseEvents: PropTypes.bool
   };
 
   static defaultProps = {
     insecure: true,
     resizeHide: true,
     wrapper: 'div',
-    clickable: false
+    clickable: false,
+    persistent: false,
+    ignoreMouseEvents: false
   };
 
   static supportedWrappers = ['div', 'span'];
@@ -133,6 +137,7 @@ class ReactTooltip extends React.Component {
     }
     this.bindListener() // Bind listener for tooltip
     this.bindWindowEvents(resizeHide) // Bind global event for static method
+    // this.showTooltip(null, true)
   }
 
   static getDerivedStateFromProps (nextProps, prevState) {
@@ -202,7 +207,7 @@ class ReactTooltip extends React.Component {
    * These listeners used to trigger showing or hiding the tooltip
    */
   bindListener () {
-    const {id, globalEventOff, isCapture} = this.props
+    const {id, globalEventOff, ignoreMouseEvents, isCapture} = this.props
     let targetArray = this.getTargetArray(id)
 
     targetArray.forEach(target => {
@@ -217,12 +222,13 @@ class ReactTooltip extends React.Component {
         this.customBindListener(target)
         return
       }
-
-      target.addEventListener('mouseenter', this.showTooltip, isCaptureMode)
-      if (effect === 'float') {
-        target.addEventListener('mousemove', this.updateTooltip, isCaptureMode)
+      if (!ignoreMouseEvents) {
+        target.addEventListener('mouseenter', this.showTooltip, isCaptureMode)
+        if (effect === 'float') {
+          target.addEventListener('mousemove', this.updateTooltip, isCaptureMode)
+        }
+        target.addEventListener('mouseleave', this.hideTooltip, isCaptureMode)
       }
-      target.addEventListener('mouseleave', this.hideTooltip, isCaptureMode)
     })
 
     // Global event to hide tooltip
@@ -435,6 +441,7 @@ class ReactTooltip extends React.Component {
    * When mouse leave, hide tooltip
    */
   hideTooltip (e, hasTarget, options = { isScroll: false }) {
+    if (this.props.persistent) return
     const {disable} = this.state
     const {isScroll} = options
     const delayHide = isScroll ? 0 : this.state.delayHide
