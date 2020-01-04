@@ -11,7 +11,8 @@ class Test extends React.Component {
       place: 'top',
       type: 'dark',
       effect: 'float',
-      condition: false
+      condition: false,
+      persist: false
     }
   }
 
@@ -33,6 +34,12 @@ class Test extends React.Component {
     })
   }
 
+  changePersist (persist) {
+    this.setState({
+      persist,
+    })
+  }
+
   _onClick () {
     this.setState({
       condition: true
@@ -40,7 +47,7 @@ class Test extends React.Component {
   }
 
   render () {
-    let { place, type, effect } = this.state
+    let { persist, place, type, effect } = this.state
     return (
       <div>
         <section className='tooltip-example'>
@@ -73,6 +80,11 @@ class Test extends React.Component {
                 <a className={effect === 'float' ? 'active' : ''} onClick={this.changeEffect.bind(this, 'float')}>Float<span className='mark'>(default)</span></a>
                 <a className={effect === 'solid' ? 'active' : ''} onClick={this.changeEffect.bind(this, 'solid')}>Solid</a>
               </div>
+              <div className='item'>
+                <p>Persist</p>
+                <a className={!persist ? 'active' : ''} onClick={this.changePersist.bind(this, false)}>False<span className='mark'>(default)</span></a>
+                <a className={persist ? 'active' : ''} onClick={this.changePersist.bind(this, true)}>True</a>
+              </div>
             </div>
             <pre>
               <div>
@@ -83,7 +95,7 @@ class Test extends React.Component {
               </div>
             </pre>
           </div>
-          <ReactTooltip id='main' place={place} type={type} effect={effect} multiline={true}/>
+          <ReactTooltip id='main' persistent={persist} place={place} type={type} effect={effect} multiline={true}/>
         </section>
         <section className="advance">
           <div className="section">
